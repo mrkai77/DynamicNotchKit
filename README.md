@@ -24,7 +24,7 @@ await notch.expand()
 
 Where `ContentView` conforms to `View`.
 
-DynamicNotchKit also supports Macs without a notch, meaning that this package supports _all_ Mac styles! You will see an example of that below.
+DynamicNotchKit also supports Macs without a notch, meaning that this package supports _all_ Mac styles!
 
 ## DynamicNotchInfo
 
@@ -42,9 +42,9 @@ This will result in a popover as so:
 
 <img src="media/demo.gif" width="50%"/>
 
-Furthermore, there is a `.floating` style, which will **automatically** be used on Macs without a notch:
+Furthermore, there is an `.island` style, inspired by the Dynamic Island. With the default `.auto` style, it will **automatically** be used on Macs with a Dynamic Island, where it grows right out of the pill, and on Macs without a notch, where a little pill sits inside the menu bar. Just like the notch, it supports both the expanded and compact states:
 
-<img src="media/demo-floating.gif" width="50%"/>
+<!-- TODO: add an island demo (media/demo-island.gif) -->
 
 This is only a basic glimpse into this framework's capabilities. Documentation is available for **all** public methods and properties, so I encourage you to take a look at it for more advanced usage. Alternatively, you can take a look at the unit tests for this package, where I have added some usage examples as well.
 

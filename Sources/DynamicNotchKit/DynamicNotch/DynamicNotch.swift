@@ -328,7 +328,7 @@ extension DynamicNotch {
 
 private extension DynamicNotch {
     /// Determines the effective style for a selected screen.
-    /// - Parameter screen: the screen to check for a notch.
+    /// - Parameter screen: the screen to check for a cutout.
     /// - Returns: the effective style for the screen.
     func effectiveStyle(for screen: NSScreen) -> DynamicNotchStyle {
         guard style == .auto else {
