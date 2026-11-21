@@ -140,10 +140,13 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
 
     /// Observes screen parameters changes and re-initializes the window if necessary.
     private func observeScreenParameters() {
-        Task {
+        Task { [weak self] in
             let sequence = NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification)
             for await _ in sequence.map(\.name) {
-                if let screen = NSScreen.screens.first {
+                guard let self else { return }
+                guard state != .hidden else { continue } // Re-initializing would show a hidden notch again (#49)
+
+                if let screen = windowController?.window?.screen ?? NSScreen.screens.first {
                     initializeWindow(screen: screen)
                 }
             }
