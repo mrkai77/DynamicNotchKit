@@ -13,19 +13,16 @@ import SwiftUI
 /// A customizable, notch-styled window for macOS applications.
 ///
 /// ``DynamicNotch`` is the most flexible way to present custom windows using ``DynamicNotchKit``.
-/// It accepts SwiftUI views as input and renders them in a dynamic floating window, and is ideal when full control over the content is required.
+/// It accepts SwiftUI views as input and renders them in a window anchored to the top of the screen, and is ideal when full control over the content is required.
 ///
 /// Inspired by Apple’s Dynamic Island, ``DynamicNotch`` introduces a similar interface experience for macOS, with built-in support for *expanded* and *compact* display states.
 ///
 /// ### Expanded State
 /// The expanded state is generally the largest view.
-/// It shows the full content view below the notch, and is also the view used when the window is floating.
+/// It shows the full content view below the notch or island.
 ///
 /// ### Compact State
-/// In the compact state, there is the leading content, which is shown on the left side of the notch, and the trailing content, which is shown on the right side of the notch.
-///
-/// > When using the `floating` style, this framework does not support compact mode.
-/// > Calling ``compact(on:)`` on these devices will automatically hide the window.
+/// In the compact state, there is the leading content, which is shown on the left side of the notch or island, and the trailing content, which is shown on the right side of the notch or island.
 ///
 /// ## Usage
 ///
@@ -82,6 +79,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     @Published private(set) var state: DynamicNotchState = .hidden
     @Published private(set) var notchSize: CGSize = .zero
     @Published private(set) var menubarHeight: CGFloat = 0
+    @Published private(set) var islandAnchor: IslandAnchor = .zero
     @Published public private(set) var isHovering: Bool = false
 
     private var closePanelTask: Task<(), Never>? // Used to close the panel after hiding completes
@@ -89,7 +87,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     /// Creates a new DynamicNotch with custom content and style.
     /// - Parameters:
     ///   - hoverBehavior: defines the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
-    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or island).
     ///   - expanded: a SwiftUI View to be shown in the expanded state of the notch.
     ///   - compactLeading: a SwiftUI View to be shown in the compact leading state of the notch.
     ///   - compactTrailing: a SwiftUI View to be shown in the compact trailing state of the notch.
@@ -113,7 +111,7 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     /// Creates a new DynamicNotch with custom content and style. Does not support the compact appearance.
     /// - Parameters:
     ///   - hoverBehavior: defines the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
-    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or island).
     ///   - expanded: a SwiftUI View to be shown in the expanded state of the notch.
     public convenience init(
         hoverBehavior: DynamicNotchHoverBehavior = [.keepVisible],
@@ -222,11 +220,6 @@ extension DynamicNotch {
 
     func _compact(on screen: NSScreen = NSScreen.screens[0], skipHide: Bool) async {
         guard state != .compact else { return }
-
-        if effectiveStyle(for: screen).isFloating {
-            await hide()
-            return
-        }
 
         if disableCompactLeading, disableCompactTrailing {
             await hide()
@@ -338,10 +331,32 @@ private extension DynamicNotch {
     /// - Parameter screen: the screen to check for a notch.
     /// - Returns: the effective style for the screen.
     func effectiveStyle(for screen: NSScreen) -> DynamicNotchStyle {
-        if style == .auto {
-            return screen.hasNotch ? .notch : .floating
+        guard style == .auto else {
+            return style
         }
-        return style
+
+        if case .notch = screen.cutout {
+            return .notch
+        }
+        return .island
+    }
+
+    /// Computes the anchor pill for the island style on a screen.
+    /// - Parameter screen: the screen to compute the anchor for.
+    /// - Returns: the physical island when the screen has one, otherwise a virtual pill inside the menu bar.
+    func computeIslandAnchor(for screen: NSScreen) -> IslandAnchor {
+        var cutout = screen.cutout
+        #if DEBUG
+            if IslandAnchor.forcesVirtualAnchor {
+                cutout = .none
+            }
+        #endif
+
+        return IslandAnchor.make(
+            cutout: cutout,
+            screenFrame: screen.frame,
+            menubarHeight: screen.effectiveMenubarHeight
+        )
     }
 
     /// Initializes the window for the DynamicNotch.
@@ -352,7 +367,8 @@ private extension DynamicNotch {
         deinitializeWindow()
 
         notchSize = screen.notchFrameWithMenubarAsBackup.size
-        menubarHeight = screen.menubarHeight
+        menubarHeight = screen.effectiveMenubarHeight
+        islandAnchor = computeIslandAnchor(for: screen)
 
         let style = effectiveStyle(for: screen)
         let view = NSHostingView(rootView: NotchContentView(dynamicNotch: self, style: style))
