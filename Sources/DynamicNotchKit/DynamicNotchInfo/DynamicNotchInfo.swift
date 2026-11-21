@@ -69,7 +69,7 @@ public final class DynamicNotchInfo: ObservableObject, DynamicNotchControllable 
     ///   - compactLeading: the icon to display in the compact leading state of the notch. If unspecified, the expanded icon will be displayed.
     ///   - compactTrailing: the icon to display in the compact trailing state of the notch. If unspecified, no icon will be displayed.
     ///   - hoverBehavior: the hover behavior of the notch, which allows for different interactions such as haptic feedback, increased shadow etc.
-    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or floating).
+    ///   - style: the popover's style. If unspecified, the style will be automatically set according to the screen (notch or island).
     public init(
         icon: DynamicNotchInfo.Label?,
         title: LocalizedStringKey,

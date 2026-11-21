@@ -41,7 +41,6 @@ extension DynamicNotchInfo {
     }
 
     struct InfoView: View {
-        @Environment(\.notchStyle) private var notchStyle
         @ObservedObject var dynamicNotch: DynamicNotchInfo
         @Namespace private var namespace
 
@@ -72,12 +71,12 @@ extension DynamicNotchInfo {
             VStack(alignment: .leading, spacing: dynamicNotch.description != nil ? nil : 0) {
                 Text(dynamicNotch.title)
                     .font(.headline)
-                    .foregroundStyle(dynamicNotch.textColor ?? (notchStyle.isNotch ? .white : .primary))
+                    .foregroundStyle(dynamicNotch.textColor ?? .white)
 
                 if let description = dynamicNotch.description {
                     Text(description)
                         .font(.caption2)
-                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? (notchStyle.isNotch ? .white.opacity(0.5) : .secondary))
+                        .foregroundStyle(dynamicNotch.textColor?.opacity(0.5) ?? .white.opacity(0.5))
                 }
             }
         }

@@ -17,29 +17,45 @@ extension NSScreen {
     }
 
     var hasNotch: Bool {
-        auxiliaryTopLeftArea?.width != nil && auxiliaryTopRightArea?.width != nil
+        notchFrame != nil
     }
 
     var notchSize: NSSize? {
+        notchFrame?.size
+    }
+
+    var notchFrame: NSRect? {
+        privateNotchFrame ?? publicNotchFrame
+    }
+
+    var publicNotchFrame: NSRect? {
+        Self.publicNotchFrame(
+            screenFrame: frame,
+            topLeftArea: auxiliaryTopLeftArea,
+            topRightArea: auxiliaryTopRightArea,
+            topInset: safeAreaInsets.top
+        )
+    }
+
+    nonisolated static func publicNotchFrame(
+        screenFrame: NSRect,
+        topLeftArea: NSRect?,
+        topRightArea: NSRect?,
+        topInset: CGFloat
+    ) -> NSRect? {
         guard
-            let topLeftNotchpadding: CGFloat = auxiliaryTopLeftArea?.width,
-            let topRightNotchpadding: CGFloat = auxiliaryTopRightArea?.width
+            let topLeftNotchpadding: CGFloat = topLeftArea?.width,
+            let topRightNotchpadding: CGFloat = topRightArea?.width
         else {
             return nil
         }
 
-        let notchHeight = safeAreaInsets.top
-        let notchWidth = frame.width - topLeftNotchpadding - topRightNotchpadding
-        return .init(width: notchWidth, height: notchHeight)
-    }
-
-    var notchFrame: NSRect? {
-        guard let notchSize else { return nil }
+        let notchWidth = screenFrame.width - topLeftNotchpadding - topRightNotchpadding
         return .init(
-            x: frame.midX - (notchSize.width / 2),
-            y: frame.maxY - notchSize.height,
-            width: notchSize.width,
-            height: notchSize.height
+            x: screenFrame.midX - (notchWidth / 2),
+            y: screenFrame.maxY - topInset,
+            width: notchWidth,
+            height: topInset
         )
     }
 
@@ -47,12 +63,32 @@ extension NSScreen {
         frame.maxY - visibleFrame.maxY
     }
 
+    var effectiveMenubarHeight: CGFloat {
+        Self.effectiveMenubarHeight(
+            visible: menubarHeight,
+            resting: privateRestingMenuBarHeight,
+            thickness: NSStatusBar.system.thickness
+        )
+    }
+
+    nonisolated static func effectiveMenubarHeight(visible: CGFloat, resting: CGFloat?, thickness: CGFloat) -> CGFloat {
+        if visible > 0 {
+            return visible
+        }
+
+        if let resting, resting > 0 {
+            return resting
+        }
+
+        return thickness
+    }
+
     var notchFrameWithMenubarAsBackup: NSRect {
         if let notchFrame {
             return notchFrame
         } else {
             let arbitraryNotchWidth: CGFloat = 300
-            let arbitraryNotchHeight: CGFloat = menubarHeight
+            let arbitraryNotchHeight: CGFloat = effectiveMenubarHeight
 
             let arbitraryNotchFrame = NSRect(
                 x: frame.midX - (arbitraryNotchWidth / 2),

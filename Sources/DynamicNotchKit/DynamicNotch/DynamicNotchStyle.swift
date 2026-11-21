@@ -10,8 +10,8 @@ import SwiftUI
 /// The style of a DynamicNotch.
 ///
 /// The style determines how the notch appears on the screen.
-/// It is generally recommended to use the ``auto`` style, which will automatically choose the best style based on the screen size.
-/// However, you can also use the ``notch`` or ``floating`` styles to force the notch to appear in a specific way.
+/// It is generally recommended to use the ``auto`` style, which will automatically choose the best style based on the screen.
+/// However, you can also use the ``notch`` or ``island`` styles to force the notch to appear in a specific way.
 ///
 /// ## Complex Usage
 ///
@@ -22,7 +22,7 @@ import SwiftUI
 /// ```
 /// In order to set a custom corner radius, use the following cases:
 /// - ``notch(topCornerRadius:bottomCornerRadius:)``
-/// - ``floating(cornerRadius:)``
+/// - ``island(cornerRadius:)``
 ///
 public enum DynamicNotchStyle: Sendable {
     /// Notch-style, meant to be used on screens with a notch
@@ -33,8 +33,13 @@ public enum DynamicNotchStyle: Sendable {
         bottomCornerRadius: CGFloat
     )
 
-    /// Floating style, to be used on screens without a notch
-    case floating(
+    /// Dynamic Island-style, meant to be used on screens with a Dynamic Island, or on screens without any cutout.
+    ///
+    /// On screens with a Dynamic Island, the window grows out of the physical island.
+    /// On screens without a cutout, a virtual island is shown inside the menu bar.
+    ///
+    /// Note that `cornerRadius` is only used when the island is in the expanded state.
+    case island(
         cornerRadius: CGFloat
     )
 
@@ -44,8 +49,18 @@ public enum DynamicNotchStyle: Sendable {
     /// A preset notch style, made to look good in most cases.
     public static let notch: DynamicNotchStyle = .notch(topCornerRadius: 15, bottomCornerRadius: 20)
 
-    /// A preset floating style, made to look good in most cases.
-    public static let floating: DynamicNotchStyle = .floating(cornerRadius: 20)
+    /// A preset island style, made to look good in most cases.
+    public static let island: DynamicNotchStyle = .island(cornerRadius: 20)
+
+    /// The floating style has been replaced by the island style.
+    @available(*, deprecated, renamed: "island")
+    public static var floating: DynamicNotchStyle { .island }
+
+    /// The floating style has been replaced by the island style.
+    @available(*, deprecated, renamed: "island(cornerRadius:)")
+    public static func floating(cornerRadius: CGFloat) -> DynamicNotchStyle {
+        .island(cornerRadius: cornerRadius)
+    }
 
     var isNotch: Bool {
         if case .notch = self {
@@ -55,20 +70,8 @@ public enum DynamicNotchStyle: Sendable {
         }
     }
 
-    var isFloating: Bool {
-        if case .floating = self {
-            true
-        } else {
-            false
-        }
-    }
-
     var openingAnimation: Animation {
-        if isNotch {
-            .bouncy(duration: 0.4)
-        } else {
-            .snappy(duration: 0.4)
-        }
+        .bouncy(duration: 0.4)
     }
 
     var closingAnimation: Animation {
@@ -85,7 +88,7 @@ extension DynamicNotchStyle: Equatable {
         switch (lhs, rhs) {
         case let (.notch(lhsTop, lhsBottom), .notch(rhsTop, rhsBottom)):
             lhsTop == rhsTop && lhsBottom == rhsBottom
-        case let (.floating(lhsRadius), .floating(rhsRadius)):
+        case let (.island(lhsRadius), .island(rhsRadius)):
             lhsRadius == rhsRadius
         case (.auto, .auto):
             true

@@ -41,17 +41,16 @@ struct NotchContentView<Expanded, CompactLeading, CompactTrailing>: View where E
         ZStack {
             if style.isNotch {
                 NotchView(dynamicNotch: dynamicNotch)
-                    .foregroundStyle(.white)
             } else {
-                NotchlessView(dynamicNotch: dynamicNotch)
+                IslandView(dynamicNotch: dynamicNotch)
             }
         }
+        .foregroundStyle(.white)
         .shadow(
             color: .black.opacity(shadowOpacity),
             radius: shadowRadius
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .environment(\.notchStyle, style)
         .animation(.snappy(duration: 0.4), value: dynamicNotch.isHovering)
         .onAppear {
             if dynamicNotch.namespace == nil {

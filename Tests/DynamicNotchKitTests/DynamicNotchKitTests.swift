@@ -4,7 +4,7 @@ import Testing
 
 extension Tag {
     @Tag static var notchStyle: Self
-    @Tag static var floatingStyle: Self
+    @Tag static var islandStyle: Self
 }
 
 /// Hey there! Looks like you found DynamicNotchKit's tests.
@@ -20,9 +20,9 @@ struct DynamicNotchKitTests {
         try await _dynamicNotchInfoSimple(with: .notch)
     }
 
-    @Test("Info - Simple floating style", .tags(.floatingStyle))
-    func dynamicNotchInfoSimpleFloatingStyle() async throws {
-        try await _dynamicNotchInfoSimple(with: .floating)
+    @Test("Info - Simple island style", .tags(.islandStyle))
+    func dynamicNotchInfoSimpleIslandStyle() async throws {
+        try await _dynamicNotchInfoSimple(with: .island)
     }
 
     func _dynamicNotchInfoSimple(with style: DynamicNotchStyle) async throws {
@@ -55,9 +55,9 @@ struct DynamicNotchKitTests {
         try await _dynamicNotchInfoAdvanced(with: .notch)
     }
 
-    @Test("Info - Advanced floating style", .tags(.floatingStyle))
-    func dynamicNotchInfoAdvancedFloatingStyle() async throws {
-        try await _dynamicNotchInfoAdvanced(with: .floating)
+    @Test("Info - Advanced island style", .tags(.islandStyle))
+    func dynamicNotchInfoAdvancedIslandStyle() async throws {
+        try await _dynamicNotchInfoAdvanced(with: .island)
     }
 
     func _dynamicNotchInfoAdvanced(with style: DynamicNotchStyle) async throws {
@@ -83,7 +83,7 @@ struct DynamicNotchKitTests {
         withAnimation {
             notch.icon = nil
             notch.title = "There's also a compact style like iOS!"
-            notch.description = "Note: this doesn't work in the floating style."
+            notch.description = "Works with the island style too!"
         }
 
         try await Task.sleep(for: .seconds(4))
@@ -117,9 +117,9 @@ struct DynamicNotchKitTests {
         try await _dynamicNotchInfoGradientCustomRadii(with: .notch(topCornerRadius: 10, bottomCornerRadius: 25))
     }
 
-    @Test("Info - Custom floating style & gradient", .tags(.floatingStyle), .disabled("Compact mode does not support floating windows"))
-    func dynamicNotchInfoCustomFloatingStyle() async throws {
-        try await _dynamicNotchInfoGradientCustomRadii(with: .floating(cornerRadius: 25))
+    @Test("Info - Custom island style & gradient", .tags(.islandStyle))
+    func dynamicNotchInfoCustomIslandStyle() async throws {
+        try await _dynamicNotchInfoGradientCustomRadii(with: .island(cornerRadius: 25))
     }
 
     func _dynamicNotchInfoGradientCustomRadii(with style: DynamicNotchStyle) async throws {
@@ -156,9 +156,9 @@ struct DynamicNotchKitTests {
         try await _testInfoWithAppIcon(with: .notch)
     }
 
-    @Test("Info - Floating with custom icon", .tags(.floatingStyle), .disabled("Compact mode does not support floating windows"))
-    func dynamicNotchInfoAppIconFloating() async throws {
-        try await _testInfoWithAppIcon(with: .floating)
+    @Test("Info - Island with custom icon", .tags(.islandStyle))
+    func dynamicNotchInfoAppIconIsland() async throws {
+        try await _testInfoWithAppIcon(with: .island)
     }
 
     func _testInfoWithAppIcon(with style: DynamicNotchStyle) async throws {
@@ -228,9 +228,9 @@ struct DynamicNotchKitTests {
         try await _dynamicNotchShowcase(with: .notch)
     }
 
-    @Test("DynamicNotch - Usage showcase - Floating style", .tags(.floatingStyle))
-    func dynamicNotchShowcaseFloatingStyle() async throws {
-        try await _dynamicNotchShowcase(with: .floating)
+    @Test("DynamicNotch - Usage showcase - Island style", .tags(.islandStyle))
+    func dynamicNotchShowcaseIslandStyle() async throws {
+        try await _dynamicNotchShowcase(with: .island)
     }
 
     func _dynamicNotchShowcase(with style: DynamicNotchStyle) async throws {

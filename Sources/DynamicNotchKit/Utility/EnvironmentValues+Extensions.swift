@@ -8,8 +8,8 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    @Entry var notchStyle: DynamicNotchStyle = .auto
     @Entry var notchSection: DynamicNotchSection = .expanded
+    @Entry var compactLabelPadding: CGFloat = 4
 }
 
 enum DynamicNotchSection {

@@ -14,8 +14,8 @@ public extension DynamicNotchInfo {
     /// If you require a custom view, you can use the ``init(content:)`` initializer, which is essentially a quick way to emulate the behavior of a ``DynamicNotch`` without needing to create all other components manually.
     ///
     struct Label: View {
-        @Environment(\.notchStyle) private var notchStyle
         @Environment(\.notchSection) private var notchSection
+        @Environment(\.compactLabelPadding) private var compactLabelPadding
         private let id: UUID = .init()
         private var iconStyle: Style
 
@@ -74,24 +74,28 @@ public extension DynamicNotchInfo {
             self.iconStyle = .customView(contentID: .init(), view: AnyView(content()))
         }
 
+        private var imagePadding: CGFloat {
+            notchSection == .expanded ? 4 : compactLabelPadding
+        }
+
         public var body: some View {
             Group {
                 switch iconStyle {
                 case let .image(image):
                     image
                         .resizable()
-                        .padding(4)
+                        .padding(imagePadding)
                         .scaledToFit()
                 case let .systemImage(systemName, color):
                     Image(systemName: systemName)
                         .resizable()
-                        .foregroundStyle(color ?? (notchStyle.isNotch ? .white : .primary))
-                        .padding(4)
+                        .foregroundStyle(color ?? .white)
+                        .padding(imagePadding)
                         .scaledToFit()
                 case let .progress(progress, color, overlay):
                     ProgressRing(
                         to: progress,
-                        color: color ?? (notchStyle.isNotch ? .white : .primary),
+                        color: color ?? .white,
                         thickness: notchSection == .expanded ? 4 : 3
                     )
                     .overlay {
